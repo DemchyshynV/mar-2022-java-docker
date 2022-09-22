@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "578:8080"
+    volumes:
+      - ./backend:/app
+    restart: on-failure
+    command: >
+      sh -c "/wait-for-it.sh db:3306 -- java -jar app.jar"
+
+  db:
+    image: mysql:8
+    ports:
+      - "5000:3306"
+    env_file:
+      - .env
+    volumes:
+      - ./my_mysql:/var/lib/mysql
+    restart: on-failure
+
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./client:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
